@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>价格计算器</title>
+    <link rel="stylesheet" type="text/css" href="../CSS/index.css">
+</head>
+<body>
+<h1>价格计算器</h1>
+<table>
+    <thead>
+    <tr>
+        <th>名称</th>
+        <th>单价</th>
+        <th>数量</th>
+        <th></th>
+        <th></th>
+        <th>小计</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for commodity in commodity_list %}
+        <tr>
+            <td>{{ commodity.name }}</td>
+            <td>{{ commodity.price }}</td>
+            <td>
+                <input style="width: 30px; font-weight: bold" class="quantity-input" type="number" name="quantity" value="0" id="quantity_{{ forloop.counter }}">
+            </td>
+            <td>
+                <button onclick=increaseQuantity({{ forloop.counter }})>增加</button>
+            </td>
+
+            <td>
+                <button onclick=decreaseQuantity({{ forloop.counter }})>减少</button>
+            </td>
+            <td id="total_{{ forloop.counter }}">0.00</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<h1>共计: <span id="totalPrice">0.00</span></h1>
+
+<button onclick=generate_detail()>解析</button>
+<p id="detail"></p>
+
+<script>
+    let commodityPrices = [
+        {% for commodity in commodity_list %}
+            {{ commodity.price }},
+        {% endfor %}
+    ];
+
+    let commodityNames = [
+        {% for commodity in commodity_list %}
+            '{{ commodity.name }}',
+        {% endfor %}
+    ];
+
+    function calculateTotal() {
+        let total = 0;
+        let quantities = document.getElementsByName('quantity');
+
+        for (let i = 0; i < quantities.length; i++) {
+            let quantity = quantities[i].value;
+            let price = parseFloat(commodityPrices[i]);
+            total += quantity * price;
+            document.getElementById('total_' + (i + 1)).innerText = (quantity * price).toFixed(2);
+        }
+
+        document.getElementById('totalPrice').innerText = total.toFixed(2);
+    }
+
+    function generate_detail() {
+        let detail = '';
+        let quantities = document.getElementsByName('quantity');
+        for (let i = 0; i < quantities.length; i++) {
+            let quantity = parseInt(quantities[i].value);
+            if (quantity > 0) {
+                detail += commodityNames[i] + ' x ' + quantity + '\n';
+            }
+        }
+        detail += '共计: ' + document.getElementById('totalPrice').innerText;
+        document.getElementById('detail').innerText = detail;
+    }
+
+    function decreaseQuantity(index) {
+        let quantityInput = document.getElementById('quantity_' + index);
+        if (parseInt(quantityInput.value) > 0) {
+            quantityInput.value = parseInt(quantityInput.value) - 1;
+        }
+        calculateTotal()
+    }
+
+    function increaseQuantity(index) {
+        let quantityInput = document.getElementById('quantity_' + index);
+        quantityInput.value = parseInt(quantityInput.value) + 1;
+        calculateTotal()
+    }
+
+
+    function save() {
+        let orderData = [];
+        let quantities = document.getElementsByName('quantity');
+
+        for (let i = 0; i < quantities.length; i++) {
+            let quantity = parseInt(quantities[i].value);
+            let commodityId = parseInt(quantities[i].id.split('_')[1]); // Extracting commodity ID from the input ID
+            orderData.push({commodity_id: commodityId, quantity: quantity});
+        }
+
+        fetch('/save_order/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken') // Ensure to include CSRF token
+            },
+            body: JSON.stringify(orderData)
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('Order saved successfully!');
+                } else {
+                    alert('Error saving order.');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving order:', error);
+            });
+    }
+</script>
+</body>
+</html>
