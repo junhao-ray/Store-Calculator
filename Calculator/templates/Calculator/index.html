@@ -21,17 +21,17 @@
     <tbody>
     {% for commodity in commodity_list %}
         <tr style="font-size: 50px">
-            <td>{{ commodity.name }}</td>
+            <td style="font-weight: bold">{{ commodity.name }}</td>
             <td>{{ commodity.price }}</td>
             <td>
-                <input style="width: 50px;font-size: 50px; font-weight: bold" class="quantity-input" type="number" name="quantity" value="0" id="quantity_{{ forloop.counter }}">
+                <input style="width: 50px;font-size: 40px" class="quantity-input" type="number" name="quantity" value="0" id="quantity_{{ forloop.counter }}">
             </td>
             <td>
-                <button style="font-size: 50px" onclick=increaseQuantity({{ forloop.counter }})>增加</button>
+                <button style="font-size: 30px; background-color: coral" onclick=increaseQuantity({{ forloop.counter }})>增加</button>
             </td>
 
             <td>
-                <button style="font-size: 50px" onclick=decreaseQuantity({{ forloop.counter }})>减少</button>
+                <button style="font-size: 30px; background-color: skyblue" onclick=decreaseQuantity({{ forloop.counter }})>减少</button>
             </td>
             <td id="total_{{ forloop.counter }}">0.00</td>
         </tr>
@@ -41,12 +41,27 @@
 <div>
     <h1 style="font-size: 100px">共计: <span id="totalPrice">0.00</span></h1>
 
-    <button style="font-size: 70px" onclick=generate_detail()>解析</button>
+{#    <button style="font-size: 70px" onclick=generate_detail()>解析</button>#}
+    <button style="font-size: 70px" onclick=copt_to_clipboard()>复制到剪贴板</button>
+
     <p style="font-size: 40px" id="detail"></p>
 </div>
 
 
 <script>
+
+    function copt_to_clipboard() {
+        let detail = document.getElementById('detail').innerText;
+        let input = document.createElement('input');
+        input.value = detail;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        generate_detail()
+        alert('已复制到剪贴板');
+    }
+
     let commodityPrices = [
         {% for commodity in commodity_list %}
             {{ commodity.price }},
@@ -79,7 +94,7 @@
         for (let i = 0; i < quantities.length; i++) {
             let quantity = parseInt(quantities[i].value);
             if (quantity > 0) {
-                detail += commodityNames[i] + ' x ' + quantity + '\n';
+                detail += commodityNames[i] + ' x' + quantity + '\n';
             }
         }
         detail += '共计: ' + document.getElementById('totalPrice').innerText;
@@ -91,12 +106,18 @@
         if (parseInt(quantityInput.value) > 0) {
             quantityInput.value = parseInt(quantityInput.value) - 1;
         }
+        if (parseInt(quantityInput.value) === 0) {
+            quantityInput.style.backgroundColor = "white";
+        }
         calculateTotal()
     }
 
     function increaseQuantity(index) {
         let quantityInput = document.getElementById('quantity_' + index);
         quantityInput.value = parseInt(quantityInput.value) + 1;
+        if (parseInt(quantityInput.value) > 0) {
+            quantityInput.style.backgroundColor = "coral";
+        }
         calculateTotal()
     }
 
