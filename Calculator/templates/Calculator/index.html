@@ -6,10 +6,10 @@
     <link rel="stylesheet" type="text/css" href="../CSS/index.css">
 </head>
 <body>
-<h1>价格计算器</h1>
+<h1 style="font-size: 100px; align-self: center">价格计算器</h1>
 <table>
     <thead>
-    <tr>
+    <tr style="font-size: 50px">
         <th>名称</th>
         <th>单价</th>
         <th>数量</th>
@@ -20,28 +20,31 @@
     </thead>
     <tbody>
     {% for commodity in commodity_list %}
-        <tr>
+        <tr style="font-size: 50px">
             <td>{{ commodity.name }}</td>
             <td>{{ commodity.price }}</td>
             <td>
-                <input style="width: 30px; font-weight: bold" class="quantity-input" type="number" name="quantity" value="0" id="quantity_{{ forloop.counter }}">
+                <input style="width: 50px;font-size: 50px; font-weight: bold" class="quantity-input" type="number" name="quantity" value="0" id="quantity_{{ forloop.counter }}">
             </td>
             <td>
-                <button onclick=increaseQuantity({{ forloop.counter }})>增加</button>
+                <button style="font-size: 50px" onclick=increaseQuantity({{ forloop.counter }})>增加</button>
             </td>
 
             <td>
-                <button onclick=decreaseQuantity({{ forloop.counter }})>减少</button>
+                <button style="font-size: 50px" onclick=decreaseQuantity({{ forloop.counter }})>减少</button>
             </td>
             <td id="total_{{ forloop.counter }}">0.00</td>
         </tr>
     {% endfor %}
     </tbody>
 </table>
-<h1>共计: <span id="totalPrice">0.00</span></h1>
+<div>
+    <h1 style="font-size: 100px">共计: <span id="totalPrice">0.00</span></h1>
 
-<button onclick=generate_detail()>解析</button>
-<p id="detail"></p>
+    <button style="font-size: 70px" onclick=generate_detail()>解析</button>
+    <p style="font-size: 40px" id="detail"></p>
+</div>
+
 
 <script>
     let commodityPrices = [
